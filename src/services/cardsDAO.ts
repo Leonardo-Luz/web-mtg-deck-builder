@@ -3,7 +3,17 @@ import { service } from "./api"
 
 export const search = async (query: string): Promise<CardList | undefined> => {
     try {
-        const response = await service.get(`/cards/search?q=${query}`);
+        const response = await service.get(`/cards/search?q=${query}&order=released`);
+
+        return response.data
+    } catch (err) {
+        return undefined
+    }
+}
+
+export const releases = async (): Promise<CardList | undefined> => {
+    try {
+        const response = await service.get(`/cards/search?order=released&q=.`);
 
         return response.data
     } catch (err) {

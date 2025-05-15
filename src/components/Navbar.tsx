@@ -7,6 +7,7 @@ import { KeyboardEvent, useEffect, useRef, useState } from "react"
 import { search } from "@/services/cardsDAO"
 import { Card } from "@/types/card"
 import { redirect } from "next/navigation"
+import { id } from "@/context/auth"
 
 export default () => {
     const styles = {
@@ -42,7 +43,7 @@ export default () => {
         }, 500)
     }
 
-    const searchFocusOut = (ev: KeyboardEvent<HTMLInputElement>) => {
+    const searchChange = (ev: KeyboardEvent<HTMLInputElement>) => {
         switch (ev.key) {
             case "Escape":
                 searchObj.current?.blur()
@@ -65,7 +66,7 @@ export default () => {
     }
 
     useEffect(() => {
-        if (searchObj.current)
+        if (searchObj.current) {
             searchObj.current.addEventListener('focusout', () => {
                 searchObj.current!.value = ""
                 setLoading(false)
@@ -76,24 +77,32 @@ export default () => {
                     timeoutId.current = null
                 }
             })
+            document.addEventListener('keydown', (ev) => {
+                if (ev.key == "/") {
+                    searchObj.current!.focus()
+                }
+            })
+        }
     }, [searchObj])
 
     return (
         <div className="z-10 fixed w-full flex flex-row align-middle justify-between bg-amber-600 p-6 shadow-black shadow-md">
             <div className="w-[12%]">
-                <Image
-                    className="grayscale"
-                    src={icon}
-                    alt="Hamburger Menu"
-                    width={60}
-                    height={60}
-                />
+                <Link href="/">
+                    <Image
+                        className="grayscale"
+                        src={icon}
+                        alt="Hamburger Menu"
+                        width={60}
+                        height={60}
+                    />
+                </Link>
             </div>
             <div className="flex align-middle">
                 <input
                     ref={searchObj}
                     onChange={searchHandler}
-                    onKeyDown={searchFocusOut}
+                    onKeyDown={searchChange}
                     className={styles.search}
                     type="search"
                     placeholder="search..."
@@ -120,16 +129,23 @@ export default () => {
                     </div>
                 }
             </div>
-            <div className="flex flex-row gap-4 align-middle">
-                <Link
-                    className={styles.button}
-                    href="/"
-                >Register</Link>
-                <Link
-                    className={styles.button}
-                    href="/"
-                >Login</Link>
-            </div>
+            {
+                !id ?
+                    <div className="flex flex-row gap-4 align-middle">
+                        <Link
+                            className={styles.button}
+                            href="/register"
+                        >Register</Link>
+                        <Link
+                            className={styles.button}
+                            href="/login"
+                        >Login</Link>
+                    </div> :
+                    <Link
+                        className={styles.button}
+                        href="/profile"
+                    >Profile</Link>
+            }
         </div>
     )
 }
