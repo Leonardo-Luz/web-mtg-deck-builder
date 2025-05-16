@@ -2,6 +2,8 @@
 
 import { registerUserHandler } from "@/context/auth";
 import axios from "axios";
+import { signIn } from "next-auth/react";
+import { redirect } from "next/navigation";
 import { useRef } from "react";
 
 export default () => {
@@ -19,11 +21,25 @@ export default () => {
             confirmPassword.current.value.length > 0 &&
             password.current.value == confirmPassword.current.value
         ) {
-            registerUserHandler({
+            const response = await axios.post("/api/v1/users/register", {
                 name: name.current.value,
                 username: username.current.value,
                 password: password.current.value
             })
+
+            if (!response.data.success) return
+
+            const res = await signIn("credentials", {
+                username,
+                password,
+                redirect: false,
+            });
+
+            if (res?.ok) {
+                redirect('/')
+            } else {
+                alert("Login failed");
+            }
         }
     }
 

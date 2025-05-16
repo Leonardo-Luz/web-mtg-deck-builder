@@ -3,6 +3,7 @@ import { Fira_Code } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SessionWrapper from "@/components/SessionWrapper";
 
 const firaCode = Fira_Code({
     variable: "--font-fira-code",
@@ -24,9 +25,11 @@ export default function RootLayout({
             <body
                 className={`${firaCode.variable} antialiased flex flex-col h-[100vh] justify-between align-middle`}
             >
-                <Navbar />
 
-                {children}
+                <SessionWrapper>
+                    <Navbar />
+                    {children}
+                </SessionWrapper>
 
                 <Footer />
             </body>

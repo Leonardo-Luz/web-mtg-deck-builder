@@ -1,7 +1,7 @@
 'use client'
 
-import { loginUserHandler } from "@/context/auth";
-import axios from "axios";
+import { signIn } from "next-auth/react";
+import { redirect } from "next/navigation";
 import { useRef } from "react";
 
 export default () => {
@@ -17,13 +17,19 @@ export default () => {
             const username = usernameRef.current.value
             const password = passwordRef.current.value
 
-            loginUserHandler(
+            const res = await signIn("credentials", {
                 username,
-                password
-            );
+                password,
+                redirect: false
+            });
+
+            if (res?.ok) {
+                redirect('/')
+            } else {
+                alert("Login failed");
+            }
         }
     }
-
 
     return (
         <div className="mt-50 mb-10 flex flex-col align-middle gap-10">

@@ -14,7 +14,7 @@ export async function getDecksByUser(userId: string) {
     return await database
         .select()
         .from(decksTable)
-        .innerJoin(usersTable, eq(usersTable.id, userId))
+        .leftJoin(usersTable, eq(usersTable.id, userId))
 }
 
 export async function getDeckById(id: string) {

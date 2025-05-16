@@ -7,7 +7,7 @@ import { KeyboardEvent, useEffect, useRef, useState } from "react"
 import { search } from "@/services/cardsDAO"
 import { Card } from "@/types/card"
 import { redirect } from "next/navigation"
-import { id } from "@/context/auth"
+import { useSession } from "next-auth/react"
 
 export default () => {
     const styles = {
@@ -19,6 +19,8 @@ export default () => {
     const [cards, setCards] = useState<Card[]>()
     const [currentCard, setCurrentCard] = useState<number>(0)
     const [loading, setLoading] = useState(false)
+
+    const { data: session, status } = useSession();
 
     const searchHandler = () => {
         setLoading(true)
@@ -65,25 +67,37 @@ export default () => {
         }
     }
 
+
     useEffect(() => {
-        if (searchObj.current) {
-            searchObj.current.addEventListener('focusout', () => {
-                searchObj.current!.value = ""
-                setLoading(false)
-                setCards(undefined)
-                setCurrentCard(0)
-                if (timeoutId.current) {
-                    clearTimeout(timeoutId.current);
-                    timeoutId.current = null
-                }
-            })
-            document.addEventListener('keydown', (ev) => {
-                if (ev.key == "/") {
-                    searchObj.current!.focus()
-                }
-            })
-        }
-    }, [searchObj])
+        const inputEl = searchObj.current;
+        if (!inputEl) return;
+
+        const onFocusOut = () => {
+            inputEl.value = '';
+            setLoading(false);
+            setCards(undefined);
+            setCurrentCard(0);
+            if (timeoutId.current) {
+                clearTimeout(timeoutId.current);
+                timeoutId.current = null;
+            }
+        };
+
+        const onKeyDown = (ev: any) => {
+            if (ev.key === '/') {
+                ev.preventDefault();
+                inputEl.focus();
+            }
+        };
+
+        inputEl.addEventListener('focusout', onFocusOut);
+        document.addEventListener('keydown', onKeyDown);
+
+        return () => {
+            inputEl.removeEventListener('focusout', onFocusOut);
+            document.removeEventListener('keydown', onKeyDown);
+        };
+    }, []);
 
     return (
         <div className="z-10 fixed w-full flex flex-row align-middle justify-between bg-amber-600 p-6 shadow-black shadow-md">
@@ -130,7 +144,7 @@ export default () => {
                 }
             </div>
             {
-                !id ?
+                status != "authenticated" ?
                     <div className="flex flex-row gap-4 align-middle">
                         <Link
                             className={styles.button}
@@ -141,10 +155,17 @@ export default () => {
                             href="/login"
                         >Login</Link>
                     </div> :
-                    <Link
-                        className={styles.button}
-                        href="/profile"
-                    >Profile</Link>
+
+                    <div className="flex flex-row gap-4 align-middle">
+                        <Link
+                            className={styles.button}
+                            href="/decks"
+                        >Decks</Link>
+                        <Link
+                            className={styles.button}
+                            href="/profile"
+                        >Profile</Link>
+                    </div>
             }
         </div>
     )
