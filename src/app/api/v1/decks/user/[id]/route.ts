@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { getDecksByUser } from "../../../repositories/deck";
 
-export const GET = async (req: Request, context: { params: { userId: string } }) => {
-    const { userId } = context.params
+export const GET = async (req: Request, context: { params: { id: string } }) => {
+    const { id } = context.params
 
     try {
-        const decks = await getDecksByUser(userId)
+        const decks = await getDecksByUser(id)
 
         return new NextResponse(JSON.stringify({ success: true, data: decks }), { status: 200, headers: { 'Content-Type': 'application/json' } });
     } catch (err) {

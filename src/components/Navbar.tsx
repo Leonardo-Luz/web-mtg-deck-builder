@@ -159,7 +159,7 @@ export default () => {
                     <div className="flex flex-row gap-4 align-middle">
                         <Link
                             className={styles.button}
-                            href="/decks"
+                            href="/deck"
                         >Decks</Link>
                         <Link
                             className={styles.button}

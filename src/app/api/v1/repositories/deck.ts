@@ -2,7 +2,6 @@ import { eq } from "drizzle-orm";
 
 import { decksTable } from "@/models/deck";
 import database from "../../config/database"
-import { usersTable } from "@/models/user";
 
 export async function getDecks() {
     return await database
@@ -14,7 +13,7 @@ export async function getDecksByUser(userId: string) {
     return await database
         .select()
         .from(decksTable)
-        .leftJoin(usersTable, eq(usersTable.id, userId))
+        .where(eq(decksTable.userId, userId));
 }
 
 export async function getDeckById(id: string) {
