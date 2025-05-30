@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 
 import { decksTable } from "@/models/deck";
 import database from "../../config/database"
+import { cardsTable } from "@/models/card";
 
 export async function getDecks() {
     return await database
@@ -20,13 +21,15 @@ export async function getDeckById(id: string) {
     return await database
         .select()
         .from(decksTable)
+        .leftJoin(cardsTable, eq(decksTable.id, cardsTable.deckId))
         .where(eq(decksTable.id, id))
 }
 
 export async function insertDeck(deck: typeof decksTable.$inferInsert) {
-    await database
+    return await database
         .insert(decksTable)
         .values(deck)
+        .returning()
 }
 
 export async function updateDeck(id: string, deck: typeof decksTable.$inferInsert) {

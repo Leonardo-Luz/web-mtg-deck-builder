@@ -1,7 +1,7 @@
 'use client'
 
 import { getById } from "@/services/cardsDAO";
-import { Card } from "@/types/card"
+import { Card, CardDeck } from "@/types/card"
 import { Deck } from "@/types/deck";
 import axios from "axios";
 import Image from "next/image";
@@ -16,41 +16,45 @@ type CardsProps = {
     params: Promise<Params>
 }
 
+type CardQty = {
+    card: Card,
+    qty: number,
+}
+
 export default ({ params }: CardsProps) => {
     const { id } = use(params)
 
     const [deck, setDeck] = useState<Deck>();
-    const [cards, setCards] = useState<Card[]>([]);
+    const [cards, setCards] = useState<CardQty[]>([]);
     const [current, setCurrent] = useState<number>(0);
 
     const getDeck = async () => {
         const response = await axios.get(`/api/v1/decks/${id}`)
 
-        setDeck(response.data.data[0])
-    }
+        setDeck(response.data.data.deck)
 
-    const getCards = async () => {
-        if (deck)
-            deck.cards.forEach(async card => {
-                const data = await getById(card)
+        const cardsData = await Promise.all(response.data.data.cards.map(async (card: CardDeck) => {
+            const data = await getById(card.card)
 
-                setCards(prev => [...prev, data])
-            })
+            return { card: data, qty: card.qty }
+        }))
+
+        setCards(cardsData)
     }
 
     useEffect(() => {
-        if (!deck)
-            getDeck()
+        getDeck()
     }, [])
 
-    useEffect(() => {
-        if (cards.length == 0 && deck && deck.cards.length > 0)
-            getCards()
-    }, [deck])
-
     return (
-        <div className="flex flex-col w-full self-center gap-12 mt-30 mb-10">
-            <h1 className="text-center self-center font-extrabold text-3xl text-amber-500">Deck List</h1>
+        <div className="flex flex-col w-full self-center gap-8 mt-30 mb-10">
+            <div className="w-[50%] self-center flex flex-row justify-between">
+                <h1 className="text-center self-center font-extrabold text-2xl text-amber-500">Deck: {deck && deck.name}</h1>
+                <button
+                    className="w-[20%] cursor-pointer self-center rounded-md bg-amber-600 text-black font-extrabold p-2 inset-shadow-sm inset-shadow-[#000000] hover:bg-amber-300"
+                >EDIT</button>
+            </div>
+            <hr className="self-center w-[50%] border-2 border-amber-500" />
             <div className="self-center flex flex-row gap-8 align-top">
                 <div
                     className="self-center"
@@ -58,12 +62,12 @@ export default ({ params }: CardsProps) => {
                     {
                         cards.length > 0 &&
                         <Image
-                            key={cards[current].id}
-                            onClick={() => redirect(`/card/${cards[current].id}`)}
+                            key={cards[current].card.id}
+                            onClick={() => redirect(`/card/${cards[current].card.id}`)}
                             width={300}
                             height={300}
-                            alt={cards[current].id}
-                            src={cards[current].image_uris ? cards[current].image_uris.png : "/public/globe.svg"}
+                            alt={cards[current].card.id}
+                            src={cards[current].card.image_uris ? cards[current].card.image_uris.png : "/public/globe.svg"}
                         />
                     }
                 </div>
@@ -80,12 +84,12 @@ export default ({ params }: CardsProps) => {
                                 cards.length > 0 &&
                                 cards.map((card, index) => <div
                                     onMouseOver={() => setCurrent(index)}
-                                    key={card.id}
+                                    key={card.card.id}
                                     className="flex flex-row hover:bg-amber-400 hover:text-black hover:font-bold"
                                 >
-                                    <p onClick={() => { redirect(`/card/${card.id}`) }} className="p-2 w-[20%]">{index}</p>
-                                    <p onClick={() => { redirect(`/card/${card.id}`) }} className="p-2 w-[60%]">{card.name}</p>
-                                    <p onClick={() => { redirect(`/card/${card.id}`) }} className="text-end p-2 w-[20%]">qty</p>
+                                    <p onClick={() => { redirect(`/card/${card.card.id}`) }} className="p-2 w-[20%]">{index}</p>
+                                    <p onClick={() => { redirect(`/card/${card.card.id}`) }} className="p-2 w-[60%]">{card.card.name}</p>
+                                    <p onClick={() => { redirect(`/card/${card.card.id}`) }} className="text-end p-2 w-[20%]">{card.qty}</p>
                                 </div>)
                             }
                         </div>

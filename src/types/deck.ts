@@ -1,11 +1,10 @@
+import { CardDeck } from "./card";
+
 export type Deck = {
     id: string,
     name: string,
     commander?: string,
     colors: string[],
-    cards: {
-        card: string,
-        qty: number
-    }[],
+    cards: CardDeck[],
     userId: string,
 }

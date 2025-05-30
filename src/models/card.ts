@@ -5,5 +5,5 @@ export const cardsTable = pgTable("cards", {
     id: uuid().primaryKey().defaultRandom(),
     card: varchar({ length: 100 }).notNull(),
     qty: integer().notNull().default(1),
-    deckId: uuid('deck_id').references(() => decksTable.id)
+    deckId: uuid('deck_id').references(() => decksTable.id, { onDelete: 'cascade' })
 });

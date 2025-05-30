@@ -2,6 +2,13 @@ export type CardList = {
     "data": Card[]
 }
 
+export type CardDeck = {
+    id: string,
+    card: string,
+    qty: number,
+    deckId: string,
+}
+
 export type Card = {
     "object": string,
     "id": string,

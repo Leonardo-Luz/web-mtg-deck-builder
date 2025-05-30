@@ -3,6 +3,7 @@
 import { getById } from "@/services/cardsDAO";
 import { Card } from "@/types/card"
 import axios from "axios";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { use, useEffect, useState } from "react"
 
@@ -16,6 +17,8 @@ type CardsProps = {
 
 export default ({ params }: CardsProps) => {
     const { id } = use(params)
+
+    const { status } = useSession();
 
     const [card, setCard] = useState<Card>();
     const [imgs, setImgs] = useState<Card[]>([]);
@@ -95,6 +98,12 @@ export default ({ params }: CardsProps) => {
                                     width={500}
                                     height={500}
                                 />
+                            }
+                            {
+                                (imgs && status == "authenticated") &&
+                                <button
+                                    className="w-full cursor-pointer self-center rounded-md bg-amber-600 text-black font-extrabold p-3 inset-shadow-sm inset-shadow-[#000000] hover:bg-amber-300"
+                                >ADD TO DECK</button>
                             }
                         </div>
                         <div className="flex flex-col gap-4 mt-12 max-w-[55%]">

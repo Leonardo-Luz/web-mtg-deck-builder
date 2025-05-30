@@ -5,9 +5,9 @@ export const GET = async (req: Request, context: { params: { id: string } }) => 
     const { id } = context.params
 
     try {
-        const deck = await getDeckById(id)
+        const data = await getDeckById(id)
 
-        return new NextResponse(JSON.stringify({ success: true, data: deck }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+        return new NextResponse(JSON.stringify({ success: true, data: { deck: data[0].decks, cards: data.map((deck) => deck.cards) } }), { status: 200, headers: { 'Content-Type': 'application/json' } });
     } catch (err) {
         console.log(err)
 
