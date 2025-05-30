@@ -30,7 +30,7 @@ export const PUT = async (req: Request, context: { params: { id: string } }) => 
     }
 }
 
-export const DELETE = async (req: Request, context: { params: { id: string } }) => {
+export const DELETE = async (_: Request, context: { params: { id: string } }) => {
     const { id } = context.params
 
     try {

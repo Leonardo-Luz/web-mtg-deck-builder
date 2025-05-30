@@ -67,6 +67,20 @@ export default () => {
         }
     }
 
+    // useEffect(() => {
+    //     alert(JSON.stringify(session))
+    //     switch (status) {
+    //         case "loading":
+    //             break;
+    //         case "authenticated":
+    //             break;
+    //         case "unauthenticated":
+    //             break;
+    //         default:
+    //             alert(status)
+    //     }
+    // }, [status])
+
 
     useEffect(() => {
         const inputEl = searchObj.current;

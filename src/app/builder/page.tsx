@@ -2,6 +2,7 @@
 
 import { search } from "@/services/cardsDAO";
 import { Card } from "@/types/card";
+import { Deck } from "@/types/deck";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
@@ -28,14 +29,18 @@ export default () => {
         await axios.post('/api/v1/decks', {
             deck: {
                 name: nameRef.current?.value,
-                cards: deckCards.map(card => card.card.id), // qty
+                cards: deckCards.map(card => {
+                    return {
+                        card: card.card.id,
+                        qty: card.qty
+                    }
+                }),
                 commander: deckCards.find(card => card.commander) ? deckCards.find(card => card.commander) : null,
                 userId: data?.user.id,
-                colors: ["foda"]
-            }
+                colors: ["green"]
+            } as Deck
         })
-
-        redirect('/decks')
+        redirect('/deck')
     }
 
     const changeQty = (qty: number, id: string) => {

@@ -52,41 +52,45 @@ export default ({ params }: CardsProps) => {
         <div className="flex flex-col w-full self-center gap-12 mt-30 mb-10">
             <h1 className="text-center self-center font-extrabold text-3xl text-amber-500">Deck List</h1>
             <div className="self-center flex flex-row gap-8 align-top">
-                {
-                    cards.length > 0 &&
-                    <Image
-                        key={cards[current].id}
-                        onClick={() => redirect(`/card/${cards[current].id}`)}
-                        width={300}
-                        height={300}
-                        alt={cards[current].id}
-                        src={cards[current].image_uris ? cards[current].image_uris.png : "/public/globe.svg"}
-                    />
-                }
-                <table className="min-w-120 text-amber-400 self-start">
-                    <tr className="border-amber-400 border-2">
-                        <td className="p-2 w-[20%]">ID</td>
-                        <td className="w-[60%]">Card</td>
-                        <td className="text-end p-2 w-[20%]">Qty</td>
-                    </tr>
+                <div
+                    className="self-center"
+                >
+                    {
+                        cards.length > 0 &&
+                        <Image
+                            key={cards[current].id}
+                            onClick={() => redirect(`/card/${cards[current].id}`)}
+                            width={300}
+                            height={300}
+                            alt={cards[current].id}
+                            src={cards[current].image_uris ? cards[current].image_uris.png : "/public/globe.svg"}
+                        />
+                    }
+                </div>
+                <div className="flex flex-col gap-2 min-w-120 text-amber-400 self-start">
+                    <div className="flex flex-row border-amber-400 border-2">
+                        <p className="p-2 w-[20%]">ID</p>
+                        <p className="p-2 w-[60%]">Card</p>
+                        <p className="text-end p-2 w-[20%]">Qty</p>
+                    </div>
                     {
                         (deck) &&
-                        <tbody className="border-2 border-amber-500">
+                        <div className="border-2 border-amber-500 max-h-100 overflow-auto">
                             {
                                 cards.length > 0 &&
-                                cards.map((card, index) => <tr
+                                cards.map((card, index) => <div
                                     onMouseOver={() => setCurrent(index)}
                                     key={card.id}
-                                    className="hover:bg-amber-400 hover:text-black hover:font-bold"
+                                    className="flex flex-row hover:bg-amber-400 hover:text-black hover:font-bold"
                                 >
-                                    <td onClick={() => { redirect(`/card/${card.id}`) }} className="p-2 w-[20%]">{index}</td>
-                                    <td onClick={() => { redirect(`/card/${card.id}`) }} className="w-[60%]">{card.name}</td>
-                                    <td onClick={() => { redirect(`/card/${card.id}`) }} className="text-end p-2 w-[20%]">qty</td>
-                                </tr>)
+                                    <p onClick={() => { redirect(`/card/${card.id}`) }} className="p-2 w-[20%]">{index}</p>
+                                    <p onClick={() => { redirect(`/card/${card.id}`) }} className="p-2 w-[60%]">{card.name}</p>
+                                    <p onClick={() => { redirect(`/card/${card.id}`) }} className="text-end p-2 w-[20%]">qty</p>
+                                </div>)
                             }
-                        </tbody>
+                        </div>
                     }
-                </table>
+                </div>
             </div>
         </div >
     )

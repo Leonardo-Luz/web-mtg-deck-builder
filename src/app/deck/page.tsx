@@ -18,6 +18,12 @@ export default () => {
         }
     }
 
+    const deleteDeck = async (deckId: string) => {
+        await axios.delete(`/api/v1/decks/${deckId}`)
+
+        setDecks(prev => prev?.filter((deck) => deck.id != deckId))
+    }
+
     useEffect(() => {
         getDecks()
     }, [data])
@@ -41,7 +47,8 @@ export default () => {
                                 <td onClick={() => { redirect(`/deck/${deck.id}`) }} className="p-2 w-[10%]">{index}</td>
                                 <td onClick={() => { redirect(`/deck/${deck.id}`) }} className="w-[60%]">{deck.name}</td>
                                 <td onClick={() => { redirect(`/deck/${deck.id}`) }} className="p-2 w-[20%]">{deck.colors}</td>
-                                <td onClick={() => alert("foda")} className="p-2 text-end w-[10%]">Delete</td>
+                                {/*confirmDelete ? "Confirm" : "Delete"*/}
+                                <td onClick={() => deleteDeck(deck.id)} className="p-2 text-end w-[10%]">Delete</td>
                             </tr>)
                         }
                     </tbody>

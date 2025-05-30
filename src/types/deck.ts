@@ -3,10 +3,9 @@ export type Deck = {
     name: string,
     commander?: string,
     colors: string[],
-    cards: string[],
-    // cards: {
-    //     card: string,
-    //     qty: number
-    // }[],
+    cards: {
+        card: string,
+        qty: number
+    }[],
     userId: string,
 }

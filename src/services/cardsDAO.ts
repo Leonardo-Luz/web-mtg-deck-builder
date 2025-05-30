@@ -11,7 +11,7 @@ export const search = async (query: string): Promise<CardList | undefined> => {
     }
 }
 
-export const releases = async (): Promise<CardList | undefined> => {
+export const releases = async (limit: number): Promise<CardList | undefined> => {
     try {
         const response = await service.get(`/cards/search?order=released&q=.`);
 
