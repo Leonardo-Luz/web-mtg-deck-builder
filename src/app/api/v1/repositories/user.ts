@@ -3,6 +3,7 @@ import bcryptjs from "bcryptjs";
 
 import { usersTable } from "@/models/user";
 import database from "../../config/database";
+import { AuthError } from "../lib/errors";
 
 export async function getUsers() {
     return await database
@@ -59,3 +60,20 @@ export async function loginUser(username: string, password: string) {
     return user;
 }
 
+export async function updateUserPassword(id: string, oldPassword: string, newPassword: string) {
+    const result = await database.select().from(usersTable).where(eq(usersTable.id, id)).limit(1);
+    const user = result[0];
+    if (!user) throw new AuthError("Invalid credentials");
+
+    const match = await bcryptjs.compare(oldPassword, user.password);
+    if (!match) throw new AuthError("Invalid credentials");
+
+    const newHashedPassword = await bcryptjs.hash(newPassword, 10);
+
+    await database
+        .update(usersTable)
+        .set({
+            password: newHashedPassword
+        })
+        .where(eq(usersTable.id, user.id))
+}

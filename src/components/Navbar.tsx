@@ -20,7 +20,7 @@ export default () => {
     const [currentCard, setCurrentCard] = useState<number>(0)
     const [loading, setLoading] = useState(false)
 
-    const { data: session, status } = useSession();
+    const { status } = useSession();
 
     const searchHandler = () => {
         setLoading(true)
@@ -66,21 +66,6 @@ export default () => {
                 break;
         }
     }
-
-    // useEffect(() => {
-    //     alert(JSON.stringify(session))
-    //     switch (status) {
-    //         case "loading":
-    //             break;
-    //         case "authenticated":
-    //             break;
-    //         case "unauthenticated":
-    //             break;
-    //         default:
-    //             alert(status)
-    //     }
-    // }, [status])
-
 
     useEffect(() => {
         const inputEl = searchObj.current;

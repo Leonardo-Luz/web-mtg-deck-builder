@@ -1,6 +1,5 @@
 'use client'
 
-import { registerUserHandler } from "@/context/auth";
 import axios from "axios";
 import { signIn } from "next-auth/react";
 import { redirect } from "next/navigation";

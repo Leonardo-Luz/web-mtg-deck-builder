@@ -2,6 +2,7 @@
 
 import axios from "axios";
 import { signOut, useSession } from "next-auth/react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default () => {
@@ -42,11 +43,11 @@ export default () => {
                     className="w-[25%] cursor-pointer self-center rounded-md bg-amber-600 text-black font-extrabold p-3 inset-shadow-sm inset-shadow-[#000000] hover:bg-amber-300"
                     onClick={logoutHandler}
                 >Logout</button>
-                <button
+                <Link
+                    href="/profile/change-password"
                     className="w-[25%] cursor-pointer self-center rounded-md bg-amber-600 text-black font-extrabold p-3 inset-shadow-sm inset-shadow-[#000000] hover:bg-amber-300"
-                    onClick={logoutHandler}
-                >Change Password</button>
+                >Change Password</Link>
             </div>
         </div>
-    );
+    )
 }

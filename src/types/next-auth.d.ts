@@ -6,6 +6,8 @@ declare module "next-auth" {
             id: string;
             username: string;
         };
+        exp?: number;
+        iat?: number;
     }
 
     interface User {
@@ -20,6 +22,8 @@ declare module "next-auth/jwt" {
             id: string;
             username: string;
         };
+        exp?: number;
+        iat?: number;
     }
 }
 
