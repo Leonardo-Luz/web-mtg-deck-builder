@@ -66,8 +66,9 @@ export default () => {
 
     const addCardHandler = (id?: number) => {
         if (cards) {
-            searchRef.current?.blur()
             SetDeckCards(prev => [...prev, { card: cards[id ? id : currentCard], qty: 1 }])
+            searchRef.current?.blur()
+            alert(id)
         }
     }
 

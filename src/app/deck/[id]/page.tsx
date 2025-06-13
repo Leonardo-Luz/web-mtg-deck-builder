@@ -4,6 +4,7 @@ import { getById } from "@/services/cardsDAO";
 import { Card, CardDeck } from "@/types/card"
 import { Deck } from "@/types/deck";
 import axios from "axios";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { use, useEffect, useState } from "react"
@@ -24,6 +25,7 @@ type CardQty = {
 export default ({ params }: CardsProps) => {
     const { id } = use(params)
 
+    const { data } = useSession()
     const [deck, setDeck] = useState<Deck>();
     const [cards, setCards] = useState<CardQty[]>([]);
     const [current, setCurrent] = useState<number>(0);
@@ -50,9 +52,12 @@ export default ({ params }: CardsProps) => {
         <div className="flex flex-col w-full self-center gap-8 mt-30 mb-10">
             <div className="w-[50%] self-center flex flex-row justify-between">
                 <h1 className="text-center self-center font-extrabold text-2xl text-amber-500">Deck: {deck && deck.name}</h1>
-                <button
-                    className="w-[20%] cursor-pointer self-center rounded-md bg-amber-600 text-black font-extrabold p-2 inset-shadow-sm inset-shadow-[#000000] hover:bg-amber-300"
-                >EDIT</button>
+                {
+                    data?.user.id == deck?.userId &&
+                    <button
+                        className="w-[20%] cursor-pointer self-center rounded-md bg-amber-600 text-black font-extrabold p-2 inset-shadow-sm inset-shadow-[#000000] hover:bg-amber-300"
+                    >EDIT</button>
+                }
             </div>
             <hr className="self-center w-[50%] border-2 border-amber-500" />
             <div className="self-center flex flex-row gap-8 align-top">

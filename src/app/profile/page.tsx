@@ -26,15 +26,15 @@ export default () => {
 
     return (
         <div className="mt-50 mb-10 flex flex-col align-middle gap-20">
-            <h1 className="self-center font-extrabold text-4xl text-amber-500">PROFILE</h1>
+            <h1 className="self-center font-extrabold text-3xl text-amber-500">PROFILE</h1>
             <div className="self-center w-[50%] flex flex-col gap-2">
                 <label className="flex flex-row justify-between w-full border-amber-500 border-3 p-2">
-                    <h1 className="font-extrabold text-3xl text-amber-500">Name: </h1>
-                    <h1 className="font-extrabold text-3xl text-amber-500">{data?.user.username || "Loading"}</h1>
+                    <h1 className="font-extrabold text-2xl text-amber-500">Name: </h1>
+                    <h1 className="font-extrabold text-2xl text-amber-500">{data?.user.username || "Loading"}</h1>
                 </label>
                 <label className="flex flex-row justify-between w-full border-amber-500 border-3 p-2">
-                    <h1 className="font-extrabold text-3xl text-amber-500">decks: </h1>
-                    <h1 className="font-extrabold text-3xl text-amber-500">{decks}</h1>
+                    <h1 className="font-extrabold text-2xl text-amber-500">decks: </h1>
+                    <h1 className="font-extrabold text-2xl text-amber-500">{decks}</h1>
                 </label>
             </div>
 
