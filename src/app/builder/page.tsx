@@ -1,10 +1,12 @@
 'use client'
 
+import FormButton from "@/components/FormButton";
 import { search } from "@/services/cardsDAO";
 import { Card } from "@/types/card";
 import { Deck } from "@/types/deck";
 import axios from "axios";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { KeyboardEvent, useEffect, useRef, useState } from "react";
 
@@ -23,6 +25,7 @@ export default () => {
     const timeoutId = useRef<NodeJS.Timeout>(null)
     const [cards, setCards] = useState<Card[]>()
     const [currentCard, setCurrentCard] = useState<number>(0)
+    const [currentImg, setCurrentImg] = useState<string>("globe.svg")
     const [loading, setLoading] = useState(false)
 
     const addDeckHandler = async () => {
@@ -68,7 +71,6 @@ export default () => {
         if (cards) {
             SetDeckCards(prev => [...prev, { card: cards[id ? id : currentCard], qty: 1 }])
             searchRef.current?.blur()
-            alert(id)
         }
     }
 
@@ -146,35 +148,41 @@ export default () => {
         };
     }, []);
 
+    useEffect(() => {
+        if (cards)
+            setCurrentImg(cards[currentCard].image_uris ? cards[currentCard].image_uris.png : "/public/globe.svg")
+    }, [currentCard])
+
     return (
-        <div className="w-full mt-30 flex flex-col gap-6 align-middle">
+        <form action={addDeckHandler} className="w-full mt-30 mb-12 flex flex-col gap-6 align-middle">
             <label className="self-center w-[80%] text-amber-400 flex flex-row justify-between border-b-2 border-amber-500">Deck Name: <input ref={nameRef} className="w-[60%] text-right" type="text" /></label>
-            <table className="self-center w-[80%] text-amber-400">
-                <tr className="border-amber-400 border-2">
-                    <th>Add Card</th>
-                    <th>
+            <div className="flex flex-col gap-2 self-center w-[80%] text-amber-400">
+                <div className="flex flex-row justify-between border-amber-400 border-2 w-full">
+                    <h1 className="p-2">Add Card</h1>
+                    <div>
                         <div className="flex align-middle">
                             <input
                                 ref={searchRef}
                                 onChange={searchHandler}
                                 onKeyDown={searchChange}
-                                className="w-100 text-amber-500 text-center font-extrabold inset-shadow-sm inset-shadow-[#000000] focus:text-white"
+                                className="p-2 border-r-2 border-l-2 border-amber-400 w-100 text-amber-500 text-center font-extrabold inset-shadow-sm inset-shadow-[#000000] focus:text-white"
                                 type="search"
-                                placeholder="search..."
+                                placeholder="search for a card here..."
                             />
                             {
                                 loading &&
-                                <div className="flex flex-col gap-2 w-100 text-center fixed mt-8">
+                                <div className="flex flex-col gap-2 w-100 text-center fixed mt-12">
                                     <p className="bg-amber-600 rounded-md shadow-md shadow-black">Loading</p>
                                 </div>
                             }
                             {
                                 (cards) &&
-                                <div className="flex flex-col gap-2 w-100 text-center fixed mt-8">
+                                <div className="flex flex-col gap-2 w-100 text-center fixed mt-12">
                                     {
                                         cards.map((card, index) => <button
                                             key={card.id}
                                             onClick={() => addCardHandler(index)}
+                                            onMouseEnter={() => setCurrentImg(card.image_uris ? card.image_uris.png : "/public/globe.svg")}
                                             className={`rounded-md shadow-md shadow-black
                                                 ${currentCard == index ?
                                                     "bg-amber-400 text-[#171717]" :
@@ -186,30 +194,41 @@ export default () => {
                                 </div>
                             }
                         </div>
-                    </th>
-                    <th className="w-[20%] flex flex-row gap-2"></th>
-                    <th><button onClick={() => addCardHandler()}>+</button></th>
-                </tr>
-                {
-                    deckCards.length > 0 &&
-                    <tbody className="border-2 border-amber-500">
-                        {
-                            deckCards.map((card, index) => <tr className="p-3">
-                                <td>{index}</td>
-                                <td>{card.card.name}</td>
-                                <td>{card.commander ? <button>COMMANDER</button> : <button onClick={() => setCommander(card.card.id)}>Set as Commander</button>}</td>
-                                <td className="w-[20%] flex flex-row gap-8"><button onClick={() => changeQty(-1, card.card.id)}>-</button><p>{card.qty}</p><button onClick={() => changeQty(1, card.card.id)}>+</button></td>
-                                <th><button onClick={() => removeCardHandler(card.card.id)}>x</button></th>
-                            </tr>)
-                        }
-                    </tbody>
-                }
-            </table>
+                    </div>
+                    <div className="w-[20%] flex flex-row gap-2"></div>
+                    <div><button className="p-2 font-extrabold" onClick={() => addCardHandler()}>+</button></div>
+                </div>
+                <div className="flex flex-row w-full gap-2">
+                    <Image
+                        className="self-start"
+                        width={300}
+                        height={300}
+                        alt="Card Image"
+                        src={currentImg}
+                    />
 
-            <button
-                className="w-[20%] cursor-pointer self-center rounded-md bg-amber-600 text-black font-extrabold p-2 inset-shadow-sm inset-shadow-[#000000] hover:bg-amber-300"
-                onClick={addDeckHandler}
-            >Create Deck</button>
-        </div>
+                    {
+                        deckCards.length > 0 &&
+                        <div className="self-start border-2 border-amber-500 flex flex-col items-start w-[90%] align-top">
+                            {
+                                deckCards.map((card, index) =>
+                                    <div
+                                        onMouseEnter={() => setCurrentImg(card.card.image_uris ? card.card.image_uris.png : "/public/globe.svg")}
+                                        key={index} className="p-3 flex flex-row w-full justify-between"
+                                    >
+                                        <h1>{index}</h1>
+                                        <h1>{card.card.name}</h1>
+                                        <div>{card.commander ? <button>COMMANDER</button> : <button onClick={() => setCommander(card.card.id)}>Set as Commander</button>}</div>
+                                        <div className="w-[20%] flex flex-row gap-8"><button onClick={() => changeQty(-1, card.card.id)}>-</button><p>{card.qty}</p><button onClick={() => changeQty(1, card.card.id)}>+</button></div>
+                                        <div><button onClick={() => removeCardHandler(card.card.id)}>x</button></div>
+                                    </div>)
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <FormButton defaultTxt="Create Deck" pendingTxt="Creating" />
+        </form>
     );
 }

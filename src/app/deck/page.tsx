@@ -8,7 +8,7 @@ import { useEffect, useState } from "react"
 
 export default () => {
     const { data } = useSession()
-    const [decks, setDecks] = useState<any[]>();
+    const [decks, setDecks] = useState<any[] | null>();
     const [filter, setFilter] = useState<"all" | "self">("self");
     const [search, setSearch] = useState<string>("");
 
@@ -25,6 +25,12 @@ export default () => {
         await axios.delete(`/api/v1/decks/${deckId}`)
 
         setDecks(prev => prev?.filter((deck) => deck.id != deckId))
+    }
+
+    const filterHandler = (value: "self" | "all") => {
+        setDecks(null);
+
+        setFilter(value);
     }
 
     useEffect(() => {
@@ -44,11 +50,11 @@ export default () => {
                     <div>
                         <button
                             className={`cursor-pointer border-amber-400 border-2 p-2 ${filter == "self" && "bg-amber-400 text-black font-bold"}`}
-                            onClick={() => setFilter("self")}
+                            onClick={() => filterHandler("self")}
                         >My Decks</button>
                         <button
                             className={`cursor-pointer border-amber-400 border-2 p-2 ${filter == "all" && "bg-amber-400 text-black font-bold"}`}
-                            onClick={() => setFilter("all")}
+                            onClick={() => filterHandler("all")}
                         >All Decks</button>
                     </div>
                     <input
@@ -65,21 +71,28 @@ export default () => {
                     <div className="p-2 text-end w-[10%]"></div>
                 </div>
                 {
-                    (decks && decks.length > 0) &&
-                    <div className="flex flex-col w-full border-2 border-amber-500">
-                        {
-                            decks.filter(deck => search.length == 0 || deck.name.includes(search)).map((deck, index) => <div key={deck.id} className="flex flex-row w-full hover:bg-amber-400 hover:text-black hover:font-bold">
-                                <div onClick={() => { redirect(`/deck/${deck.id}`) }} className="p-2 w-[10%]">{index}</div>
-                                <div onClick={() => { redirect(`/deck/${deck.id}`) }} className="p-2 w-[60%]">{deck.name}</div>
-                                <div onClick={() => { redirect(`/deck/${deck.id}`) }} className="p-2 w-[20%]">{deck.colors}</div>
-                                {/*confirmDelete ? "Confirm" : "Delete"*/}
-                                {
-                                    deck.userId == data?.user.id &&
-                                    <div onClick={() => deleteDeck(deck.id)} className="p-2 text-end w-[10%]">Delete</div>
-                                }
-                            </div>)
-                        }
-                    </div>
+                    (decks) ?
+                        (decks.length > 0) &&
+                        <div className="flex flex-col w-full border-2 border-amber-500">
+                            {
+                                decks.filter(deck => search.length == 0 || deck.name.includes(search)).map((deck, index) => <div key={deck.id} className="flex flex-row w-full hover:bg-amber-400 hover:text-black hover:font-bold">
+                                    <h1 onClick={() => { redirect(`/deck/${deck.id}`) }} className="p-2 w-[10%]">{index}</h1>
+                                    <h1 onClick={() => { redirect(`/deck/${deck.id}`) }} className="p-2 w-[60%]">{deck.name}</h1>
+                                    <h1 onClick={() => { redirect(`/deck/${deck.id}`) }} className="p-2 w-[20%]">{deck.colors}</h1>
+                                    {/*confirmDelete ? "Confirm" : "Delete"*/}
+                                    {
+                                        deck.userId == data?.user.id &&
+                                        <div onClick={() => deleteDeck(deck.id)} className="p-2 text-end w-[10%]">Delete</div>
+                                    }
+                                </div>)
+                            }
+                        </div>
+                        :
+                        <div className="flex flex-col w-full border-2 border-amber-500">
+                            <div className="flex flex-row w-full hover:bg-amber-400 hover:text-black hover:font-bold">
+                                <h1 className="p-2 w-full">LOADING</h1>
+                            </div>
+                        </div>
                 }
             </div>
             <div className="self-center">

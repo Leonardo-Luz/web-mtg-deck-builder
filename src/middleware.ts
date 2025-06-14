@@ -14,6 +14,9 @@ export default withAuth(
 
         const now = Math.floor(Date.now() / 1000);
 
+        console.log(now)
+        console.log(token)
+
         if (token.exp && token.exp < now) {
             const url = req.nextUrl.clone();
             url.pathname = "/api/auth/signout";

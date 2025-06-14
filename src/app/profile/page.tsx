@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 export default () => {
     const { data } = useSession()
 
-    const [decks, setDecks] = useState(0);
+    const [decks, setDecks] = useState<number | null>(null);
 
     async function getDecksHandler() {
         const res = await axios.get(`/api/v1/decks/user/${data!.user.id}`)
@@ -34,7 +34,7 @@ export default () => {
                 </label>
                 <label className="flex flex-row justify-between w-full border-amber-500 border-3 p-2">
                     <h1 className="font-extrabold text-2xl text-amber-500">decks: </h1>
-                    <h1 className="font-extrabold text-2xl text-amber-500">{decks}</h1>
+                    <h1 className="font-extrabold text-2xl text-amber-500">{decks ? decks : "Loading"}</h1>
                 </label>
             </div>
 

@@ -1,5 +1,6 @@
 'use client'
 
+import FormButton from "@/components/FormButton";
 import { signIn } from "next-auth/react";
 import { redirect } from "next/navigation";
 import { useRef } from "react";
@@ -32,7 +33,7 @@ export default () => {
     }
 
     return (
-        <div className="mt-50 mb-10 flex flex-col align-middle gap-10">
+        <form action={loginHandler} className="mt-50 mb-10 flex flex-col align-middle gap-10">
             <div className=" flex flex-col gap-8 self-center align-middle">
                 <label className="flex flex-row align-middle justify-between gap-5">
                     Username:
@@ -52,10 +53,7 @@ export default () => {
                 </label>
             </div>
 
-            <button
-                className="w-[25%] cursor-pointer self-center rounded-md bg-amber-600 text-black font-extrabold p-3 inset-shadow-sm inset-shadow-[#000000] hover:bg-amber-300"
-                onClick={loginHandler}
-            >Login</button>
-        </div>
+            <FormButton defaultTxt="Login" pendingTxt="Verifying" />
+        </form>
     );
 }
