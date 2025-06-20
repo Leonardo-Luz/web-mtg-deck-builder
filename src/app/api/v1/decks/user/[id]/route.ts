@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getDecksByUser } from "../../../repositories/deck";
 
 export const GET = async (req: Request, context: { params: { id: string } }) => {
-    const { id } = context.params
+    const { id } = await context.params
 
     try {
         const decks = await getDecksByUser(id)

@@ -79,7 +79,6 @@ export default () => {
                                     <h1 onClick={() => { redirect(`/deck/${deck.id}`) }} className="p-2 w-[10%]">{index}</h1>
                                     <h1 onClick={() => { redirect(`/deck/${deck.id}`) }} className="p-2 w-[60%]">{deck.name}</h1>
                                     <h1 onClick={() => { redirect(`/deck/${deck.id}`) }} className="p-2 w-[20%]">{deck.colors}</h1>
-                                    {/*confirmDelete ? "Confirm" : "Delete"*/}
                                     {
                                         deck.userId == data?.user.id &&
                                         <div onClick={() => deleteDeck(deck.id)} className="p-2 text-end w-[10%]">Delete</div>
