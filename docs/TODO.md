@@ -1,16 +1,13 @@
 ## TODO
 
-- [x] list all decks
-- [x] search decks
+- [ ] implement mtg default back card as placeholder
+- [ ] carrousel deck list with commander card img or placeholder, deck name, format and total price
 - [ ] fix set commander option
 - [ ] add a remove commander option
 - [ ] commander has to be a legendary creature
-- [ ] change from table to div in deck builder
 - [ ] implement deck edit page
-- [ ] fix mouse click in deck builder (cards are cleaned on search blur so you can't click it)
+- [ ] fix mouse click in deck builder ()
 - [ ] show card image on search hover (builder or navbar)
-
-
 
 - [ ] Profile Route
     - [ ] logout
@@ -23,3 +20,7 @@
         - [ ] draw 7 card
         - [ ] draw card
         - [ ] discard card
+
+- [x] search decks
+- [x] change from table to div in deck builder
+- [x] list all decks
