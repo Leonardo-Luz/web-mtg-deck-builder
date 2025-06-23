@@ -2,6 +2,7 @@
 
 import axios from "axios"
 import { useSession } from "next-auth/react"
+import Image from "next/image"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { useEffect, useState } from "react"
@@ -28,6 +29,9 @@ export default () => {
     }
 
     const filterHandler = (value: "self" | "all") => {
+        if (filter == value)
+            return;
+
         setDecks(null);
 
         setFilter(value);
@@ -75,10 +79,22 @@ export default () => {
                         (decks.length > 0) &&
                         <div className="flex flex-col w-full border-2 border-amber-500">
                             {
-                                decks.filter(deck => search.length == 0 || deck.name.includes(search)).map((deck, index) => <div key={deck.id} className="flex flex-row w-full hover:bg-amber-400 hover:text-black hover:font-bold">
+                                decks.filter(deck => search.length == 0 || deck.name.includes(search)).map((deck, index) => <div key={deck.id} className="flex flex-row w-full hover:bg-black cursor-pointer hover:font-bold">
                                     <h1 onClick={() => { redirect(`/deck/${deck.id}`) }} className="p-2 w-[10%]">{index}</h1>
-                                    <h1 onClick={() => { redirect(`/deck/${deck.id}`) }} className="p-2 w-[60%]">{deck.name}</h1>
-                                    <h1 onClick={() => { redirect(`/deck/${deck.id}`) }} className="p-2 w-[20%]">{deck.colors}</h1>
+                                    <h1 onClick={() => { redirect(`/deck/${deck.id}`) }} className="p-2 w-[60%] truncate">{deck.name}</h1>
+                                    <div
+                                        onClick={() => { redirect(`/deck/${deck.id}`) }}
+                                        className="p-2 w-[20%] flex flex-wrap gap-2"
+                                    >
+                                        {(deck.colors as string[]).map(color => {
+                                            return <Image
+                                                key={color}
+                                                src={"/" + color.toLowerCase() + ".png"}
+                                                alt={color}
+                                                height={30}
+                                                width={30}
+                                            />
+                                        })}</div>
                                     {
                                         deck.userId == data?.user.id &&
                                         <div onClick={() => deleteDeck(deck.id)} className="p-2 text-end w-[10%]">Delete</div>

@@ -2,7 +2,6 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import icon from "/public/globe.svg"
 import { KeyboardEvent, useEffect, useRef, useState } from "react"
 import { search } from "@/services/cardsDAO"
 import { Card } from "@/types/card"
@@ -104,7 +103,7 @@ export default () => {
                 <Link href="/">
                     <Image
                         className="grayscale"
-                        src={icon}
+                        src="globe.svg"
                         alt="Hamburger Menu"
                         width={60}
                         height={60}

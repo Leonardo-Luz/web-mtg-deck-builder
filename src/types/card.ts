@@ -3,10 +3,11 @@ export type CardList = {
 }
 
 export type CardDeck = {
-    id: string,
+    id?: string,
     card: string,
     qty: number,
-    deckId: string,
+    commander?: boolean,
+    deckId?: string,
 }
 
 export type Card = {

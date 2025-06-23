@@ -34,7 +34,7 @@ export default () => {
                 </label>
                 <label className="flex flex-row justify-between w-full border-amber-500 border-3 p-2">
                     <h1 className="font-extrabold text-2xl text-amber-500">decks: </h1>
-                    <h1 className="font-extrabold text-2xl text-amber-500">{decks ? decks : "Loading"}</h1>
+                    <h1 className="font-extrabold text-2xl text-amber-500">{decks != null ? decks : "Loading"}</h1>
                 </label>
             </div>
 

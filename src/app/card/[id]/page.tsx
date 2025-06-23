@@ -75,7 +75,7 @@ export default ({ params }: CardsProps) => {
                                     imgs.map((url, index) => {
                                         return <Image
                                             className={`invert cursor-pointer ${index == currentImg && "scale-200"}`}
-                                            src={sets[index] || "/public/globe.svg"}
+                                            src={sets[index] || "/mtg-card-back.webp"}
                                             alt={url.id}
                                             width={20}
                                             height={20}
@@ -92,8 +92,8 @@ export default ({ params }: CardsProps) => {
                                     className="self-center"
                                     src={imgs.length > 0 ?
                                         imgs[currentImg].image_uris ?
-                                            imgs[currentImg].image_uris.png : "/public/globe.svg"
-                                        : "/public/globe.svg"}
+                                            imgs[currentImg].image_uris.png : "/mtg-card-back.webp"
+                                        : "/mtg-card-back.webp"}
                                     alt={card.name}
                                     width={500}
                                     height={500}

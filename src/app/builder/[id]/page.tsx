@@ -1,8 +1,8 @@
 'use client'
 
 import FormButton from "@/components/FormButton";
-import { search } from "@/services/cardsDAO";
-import { Card } from "@/types/card";
+import { getById, search } from "@/services/cardsDAO";
+import { Card, CardDeck } from "@/types/card";
 import { Deck } from "@/types/deck";
 import axios from "axios";
 import { useSession } from "next-auth/react";
@@ -11,11 +11,11 @@ import { redirect } from "next/navigation";
 import { KeyboardEvent, use, useEffect, useRef, useState } from "react";
 
 type CardQty = {
+    id?: string,
     card: Card,
     qty: number,
     commander?: boolean
 }
-
 type Params = {
     id: string
 }
@@ -23,10 +23,8 @@ type Params = {
 type BuilderProps = {
     params: Promise<Params>
 }
-
 export default ({ params }: BuilderProps) => {
     const { id } = use(params)
-
     const { data } = useSession()
 
     const [deckCards, SetDeckCards] = useState<CardQty[]>([]);
@@ -35,26 +33,54 @@ export default ({ params }: BuilderProps) => {
     const timeoutId = useRef<NodeJS.Timeout>(null)
     const [cards, setCards] = useState<Card[]>()
     const [currentCard, setCurrentCard] = useState<number>(0)
-    const [currentImg, setCurrentImg] = useState<string>("globe.svg")
+    const [currentImg, setCurrentImg] = useState<string>("/mtg-card-back.webp")
     const [loading, setLoading] = useState(false)
+    const [colors, setColors] = useState<string[]>([])
+    const [deck, setDeck] = useState<Deck>()
 
-    const addDeckHandler = async () => {
-        await axios.post('/api/v1/decks', {
+    const updateDeckHandler = async () => {
+        await axios.put(`/api/v1/decks/${id}`, {
             deck: {
                 name: nameRef.current?.value,
                 cards: deckCards.map(card => {
                     return {
+                        id: card.id,
                         card: card.card.id,
-                        qty: card.qty
+                        qty: card.qty,
+                        commander: card.commander,
                     }
                 }),
-                commander: deckCards.find(card => card.commander) ? deckCards.find(card => card.commander) : null,
                 userId: data?.user.id,
-                colors: ["green"]
+                colors: colors
             } as Deck
         })
         redirect('/deck')
     }
+
+    const getAllCardsHandler = async (cardsTemp: CardDeck[]) => {
+        const responses = await Promise.all(cardsTemp.map(card => getById(card.card)));
+
+        const gettedCards = responses.map(card => {
+            const data = cardsTemp.find(tmp => tmp.card == card.id)
+            return {
+                id: data ? data.id : undefined,
+                card: card,
+                commander: data ? data.commander : undefined,
+                qty: data ? data.qty : 0
+            } as CardQty
+        })
+
+        SetDeckCards(gettedCards)
+    }
+
+    const getDeckHandler = async () => {
+        const deck = await axios.get(`/api/v1/decks/${id}`)
+
+        setDeck({ ...deck.data.data.deck, cards: deck.data.data.cards })
+        setColors(deck.data.data.deck.colors)
+        getAllCardsHandler(deck.data.data.cards)
+    }
+
 
     const changeQty = (qty: number, id: string) => {
         SetDeckCards(prev => {
@@ -65,7 +91,9 @@ export default ({ params }: BuilderProps) => {
 
     const setCommander = (id: string) => {
         SetDeckCards(prev => {
-            const cards = prev.map((card) => card.card.id == id ? { ...card, commander: true } : { ...card, commander: false })
+            const cards = prev.map((card) => card.card.id == id ?
+                { ...card, commander: card.commander ? false : true } :
+                { ...card, commander: false })
             return cards
         })
     }
@@ -79,7 +107,18 @@ export default ({ params }: BuilderProps) => {
 
     const addCardHandler = (id?: number) => {
         if (cards) {
-            SetDeckCards(prev => [...prev, { card: cards[id ? id : currentCard], qty: 1 }])
+            const card = cards[id ? id : currentCard]
+            if (deckCards.find(deckCard => deckCard.card == card)) {
+                changeQty(1, card.id)
+            }
+            else {
+                setColors(prev => {
+                    const newColors = card.colors ? card.colors.filter(color => !prev.includes(color)) : []
+
+                    return [...prev, ...newColors]
+                })
+                SetDeckCards(prev => [...prev, { card: card, qty: 1 }])
+            }
             searchRef.current?.blur()
         }
     }
@@ -126,46 +165,56 @@ export default ({ params }: BuilderProps) => {
         }
     }
 
+    useEffect(() => {
+        getDeckHandler()
+    }, [])
 
     useEffect(() => {
-        const inputEl = searchRef.current;
-        if (!inputEl) return;
+        if (deck) {
+            const inputEl = searchRef.current;
+            if (!inputEl) return;
 
-        const onFocusOut = () => {
-            inputEl.value = '';
-            setLoading(false);
-            setCards(undefined);
-            setCurrentCard(0);
-            if (timeoutId.current) {
-                clearTimeout(timeoutId.current);
-                timeoutId.current = null;
-            }
-        };
+            const onFocusOut = () => {
+                inputEl.value = '';
+                setLoading(false);
+                setCards(undefined);
+                setCurrentCard(0);
+                if (timeoutId.current) {
+                    clearTimeout(timeoutId.current);
+                    timeoutId.current = null;
+                }
+            };
 
-        const onKeyDown = (ev: any) => {
-            if (ev.key === '/') {
-                ev.preventDefault();
-                inputEl.focus();
-            }
-        };
+            const onKeyDown = (ev: any) => {
+                if (ev.key === '/') {
+                    ev.preventDefault();
+                    inputEl.focus();
+                }
+            };
 
-        inputEl.addEventListener('focusout', onFocusOut);
-        document.addEventListener('keydown', onKeyDown);
+            inputEl.addEventListener('focusout', onFocusOut);
+            document.addEventListener('keydown', onKeyDown);
 
-        return () => {
-            inputEl.removeEventListener('focusout', onFocusOut);
-            document.removeEventListener('keydown', onKeyDown);
-        };
-    }, []);
+            return () => {
+                inputEl.removeEventListener('focusout', onFocusOut);
+                document.removeEventListener('keydown', onKeyDown);
+            };
+        }
+    }, [deck]);
 
     useEffect(() => {
         if (cards)
-            setCurrentImg(cards[currentCard].image_uris ? cards[currentCard].image_uris.png : "/public/globe.svg")
+            setCurrentImg(cards[currentCard].image_uris ? cards[currentCard].image_uris.png : "/mtg-card-back.webp")
     }, [currentCard])
 
-    return (
-        <form action={addDeckHandler} className="w-full mt-30 mb-12 flex flex-col gap-6 align-middle">
-            <label className="self-center w-[80%] text-amber-400 flex flex-row justify-between border-b-2 border-amber-500">Deck Name: <input ref={nameRef} className="w-[60%] text-right" type="text" /></label>
+    return deck ? (
+        <form action={updateDeckHandler} className="w-full mt-30 mb-12 flex flex-col gap-6 align-middle">
+            <label className="self-center w-[80%] text-amber-400 flex flex-row justify-between border-b-2 border-amber-500">Deck Name: <input
+                defaultValue={deck.name}
+                ref={nameRef}
+                className="w-[60%] text-right"
+                type="text"
+            /></label>
             <div className="flex flex-col gap-2 self-center w-[80%] text-amber-400">
                 <div className="flex flex-row justify-between border-amber-400 border-2 w-full">
                     <h1 className="p-2">Add Card</h1>
@@ -190,9 +239,10 @@ export default ({ params }: BuilderProps) => {
                                 <div className="flex flex-col gap-2 w-100 text-center fixed mt-12">
                                     {
                                         cards.map((card, index) => <button
+                                            type="button"
                                             key={card.id}
                                             onClick={() => addCardHandler(index)}
-                                            onMouseEnter={() => setCurrentImg(card.image_uris ? card.image_uris.png : "/public/globe.svg")}
+                                            onMouseEnter={() => setCurrentImg(card.image_uris ? card.image_uris.png : "/mtg-card-back.webp")}
                                             className={`rounded-md shadow-md shadow-black
                                                 ${currentCard == index ?
                                                     "bg-amber-400 text-[#171717]" :
@@ -206,7 +256,7 @@ export default ({ params }: BuilderProps) => {
                         </div>
                     </div>
                     <div className="w-[20%] flex flex-row gap-2"></div>
-                    <div><button className="p-2 font-extrabold" onClick={() => addCardHandler()}>+</button></div>
+                    <div><button type="button" className="p-2 font-extrabold" onClick={() => addCardHandler()}>+</button></div>
                 </div>
                 <div className="flex flex-row w-full gap-2">
                     <Image
@@ -223,14 +273,21 @@ export default ({ params }: BuilderProps) => {
                             {
                                 deckCards.map((card, index) =>
                                     <div
-                                        onMouseEnter={() => setCurrentImg(card.card.image_uris ? card.card.image_uris.png : "/public/globe.svg")}
+                                        onMouseEnter={() => setCurrentImg(card.card.image_uris ? card.card.image_uris.png : "/mtg-card-back.webp")}
                                         key={index} className="p-3 flex flex-row w-full justify-between"
                                     >
                                         <h1>{index}</h1>
-                                        <h1>{card.card.name}</h1>
-                                        <div>{card.commander ? <button>COMMANDER</button> : <button onClick={() => setCommander(card.card.id)}>Set as Commander</button>}</div>
-                                        <div className="w-[20%] flex flex-row gap-8"><button onClick={() => changeQty(-1, card.card.id)}>-</button><p>{card.qty}</p><button onClick={() => changeQty(1, card.card.id)}>+</button></div>
-                                        <div><button onClick={() => removeCardHandler(card.card.id)}>x</button></div>
+                                        <h1 className="w-[30%]">{card.card.name}</h1>
+                                        <div className="w-[30%]">{
+                                            card.commander ?
+                                                <button type="button" onClick={() => setCommander(card.card.id)}>Commander</button> :
+                                                <button type="button" onClick={() => setCommander(card.card.id)}>Set Commander</button>
+                                        }
+                                        </div>
+                                        <div className="w-[10%] flex flex-row gap-8">
+                                            <button type="button" onClick={() => changeQty(-1, card.card.id)}>-</button><p>{card.qty}</p><button type="button" onClick={() => changeQty(1, card.card.id)}>+</button>
+                                        </div>
+                                        <div><button type="button" onClick={() => removeCardHandler(card.card.id)}>x</button></div>
                                     </div>)
                             }
                         </div>
@@ -238,7 +295,7 @@ export default ({ params }: BuilderProps) => {
                 </div>
             </div>
 
-            <FormButton defaultTxt="Create Deck" pendingTxt="Creating" />
+            <FormButton defaultTxt="Update Deck" pendingTxt="updating" />
         </form>
-    );
+    ) : <p>LOADING</p>
 }

@@ -25,8 +25,9 @@ export default () => {
     const timeoutId = useRef<NodeJS.Timeout>(null)
     const [cards, setCards] = useState<Card[]>()
     const [currentCard, setCurrentCard] = useState<number>(0)
-    const [currentImg, setCurrentImg] = useState<string>("globe.svg")
+    const [currentImg, setCurrentImg] = useState<string>("/mtg-card-back.webp")
     const [loading, setLoading] = useState(false)
+    const [colors, setColors] = useState<string[]>([])
 
     const addDeckHandler = async () => {
         await axios.post('/api/v1/decks', {
@@ -35,12 +36,12 @@ export default () => {
                 cards: deckCards.map(card => {
                     return {
                         card: card.card.id,
-                        qty: card.qty
+                        qty: card.qty,
+                        commander: card.commander,
                     }
                 }),
-                commander: deckCards.find(card => card.commander) ? deckCards.find(card => card.commander) : null,
                 userId: data?.user.id,
-                colors: ["green"]
+                colors: colors
             } as Deck
         })
         redirect('/deck')
@@ -55,7 +56,7 @@ export default () => {
 
     const setCommander = (id: string) => {
         SetDeckCards(prev => {
-            const cards = prev.map((card) => card.card.id == id ? { ...card, commander: true } : { ...card, commander: false })
+            const cards = prev.map((card) => card.card.id == id ? { ...card, commander: !card.commander } : { ...card, commander: false })
             return cards
         })
     }
@@ -69,7 +70,18 @@ export default () => {
 
     const addCardHandler = (id?: number) => {
         if (cards) {
-            SetDeckCards(prev => [...prev, { card: cards[id ? id : currentCard], qty: 1 }])
+            const card = cards[id ? id : currentCard]
+            if (deckCards.find(deckCard => deckCard.card == card)) {
+                changeQty(1, card.id)
+            }
+            else {
+                setColors(prev => {
+                    const newColors = card.colors ? card.colors.filter(color => !prev.includes(color)) : []
+
+                    return [...prev, ...newColors]
+                })
+                SetDeckCards(prev => [...prev, { card: card, qty: 1 }])
+            }
             searchRef.current?.blur()
         }
     }
@@ -150,7 +162,7 @@ export default () => {
 
     useEffect(() => {
         if (cards)
-            setCurrentImg(cards[currentCard].image_uris ? cards[currentCard].image_uris.png : "/public/globe.svg")
+            setCurrentImg(cards[currentCard].image_uris ? cards[currentCard].image_uris.png : "/mtg-card-back.webp")
     }, [currentCard])
 
     return (
@@ -180,9 +192,10 @@ export default () => {
                                 <div className="flex flex-col gap-2 w-100 text-center fixed mt-12">
                                     {
                                         cards.map((card, index) => <button
+                                            type="button"
                                             key={card.id}
                                             onClick={() => addCardHandler(index)}
-                                            onMouseEnter={() => setCurrentImg(card.image_uris ? card.image_uris.png : "/public/globe.svg")}
+                                            onMouseEnter={() => setCurrentImg(card.image_uris ? card.image_uris.png : "/mtg-card-back.webp")}
                                             className={`rounded-md shadow-md shadow-black
                                                 ${currentCard == index ?
                                                     "bg-amber-400 text-[#171717]" :
@@ -196,7 +209,7 @@ export default () => {
                         </div>
                     </div>
                     <div className="w-[20%] flex flex-row gap-2"></div>
-                    <div><button className="p-2 font-extrabold" onClick={() => addCardHandler()}>+</button></div>
+                    <div><button type="button" className="p-2 font-extrabold" onClick={() => addCardHandler()}>+</button></div>
                 </div>
                 <div className="flex flex-row w-full gap-2">
                     <Image
@@ -213,14 +226,14 @@ export default () => {
                             {
                                 deckCards.map((card, index) =>
                                     <div
-                                        onMouseEnter={() => setCurrentImg(card.card.image_uris ? card.card.image_uris.png : "/public/globe.svg")}
+                                        onMouseEnter={() => setCurrentImg(card.card.image_uris ? card.card.image_uris.png : "/mtg-card-back.webp")}
                                         key={index} className="p-3 flex flex-row w-full justify-between"
                                     >
                                         <h1>{index}</h1>
-                                        <h1>{card.card.name}</h1>
-                                        <div>{card.commander ? <button>COMMANDER</button> : <button onClick={() => setCommander(card.card.id)}>Set as Commander</button>}</div>
-                                        <div className="w-[20%] flex flex-row gap-8"><button onClick={() => changeQty(-1, card.card.id)}>-</button><p>{card.qty}</p><button onClick={() => changeQty(1, card.card.id)}>+</button></div>
-                                        <div><button onClick={() => removeCardHandler(card.card.id)}>x</button></div>
+                                        <h1 className="w-[30%]">{card.card.name}</h1>
+                                        <div className="w-[30%]">{card.commander ? <button type="button">COMMANDER</button> : <button onClick={() => setCommander(card.card.id)}>Set as Commander</button>}</div>
+                                        <div className="w-[10%] flex flex-row gap-8"><button type="button" onClick={() => changeQty(-1, card.card.id)}>-</button><p>{card.qty}</p><button type="button" onClick={() => changeQty(1, card.card.id)}>+</button></div>
+                                        <div><button type="button" onClick={() => removeCardHandler(card.card.id)}>x</button></div>
                                     </div>)
                             }
                         </div>

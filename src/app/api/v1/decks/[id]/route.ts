@@ -1,8 +1,10 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { deleteDeck, getDeckById, updateDeck } from "../../repositories/deck";
 import { getServerSession } from "next-auth";
 import { STATUS_CODES } from "http";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { Deck } from "@/types/deck";
+import { insertCards, updateCard } from "../../repositories/card";
 
 export const GET = async (req: Request, context: { params: { id: string } }) => {
     const { id } = await context.params
@@ -18,7 +20,10 @@ export const GET = async (req: Request, context: { params: { id: string } }) => 
     }
 }
 
-export const PUT = async (req: Request, context: { params: { id: string } }) => {
+interface DeckNextRequest extends NextRequest {
+    json: () => Promise<{ deck: Deck }>
+}
+export const PUT = async (req: DeckNextRequest, context: { params: { id: string } }) => {
     const data = await getServerSession(authOptions);
     const { deck } = await req.json()
     const { id } = await context.params
@@ -34,6 +39,18 @@ export const PUT = async (req: Request, context: { params: { id: string } }) => 
             { status: 403, headers: { 'Content-Type': 'application/json' } });
 
     try {
+        const parsedCards = deck.cards.map(card => {
+            return {
+                ...card,
+                deckId: card.deckId = id
+            }
+        })
+
+        await Promise.all(parsedCards.filter(tmp => tmp.id).map(card => updateCard(card.id!, card)));
+
+        if (parsedCards.filter(tmp => !tmp.id).length > 0)
+            await insertCards(parsedCards.filter(tmp => !tmp.id))
+
         await updateDeck(id, deck)
 
         return new NextResponse(JSON.stringify({ success: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });

@@ -6,7 +6,6 @@ import { cardsTable } from "./card";
 export const decksTable = pgTable("decks", {
     id: uuid().primaryKey().defaultRandom(),
     name: varchar({ length: 100 }).notNull(),
-    commander: varchar({ length: 60 }),
     colors: varchar({ length: 100 }).array().notNull(),
     userId: uuid('user_id').references(() => usersTable.id)
 });

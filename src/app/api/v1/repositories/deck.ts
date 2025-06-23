@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 import { decksTable } from "@/models/deck";
 import database from "../../config/database"
@@ -8,6 +8,16 @@ export async function getDecks() {
     return await database
         .select()
         .from(decksTable)
+}
+
+export async function getDecksCommander() {
+    return await database
+        .select()
+        .from(decksTable)
+        .leftJoin(cardsTable, and(
+            eq(decksTable.id, cardsTable.deckId),
+            eq(cardsTable.commander, true)
+        ));
 }
 
 export async function getDecksByUser(userId: string) {

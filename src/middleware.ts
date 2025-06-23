@@ -32,4 +32,3 @@ export default withAuth(
 export const config = {
     matcher: ["/profile", "/profile/change-password", "/deck", "/deck/:path*"],
 };
-
