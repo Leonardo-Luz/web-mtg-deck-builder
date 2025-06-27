@@ -103,7 +103,7 @@ export default () => {
                 <Link href="/">
                     <Image
                         className="grayscale"
-                        src="globe.svg"
+                        src="/logo.png"
                         alt="Hamburger Menu"
                         width={60}
                         height={60}

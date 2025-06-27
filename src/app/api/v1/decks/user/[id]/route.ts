@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { getDecksByUser } from "../../../repositories/deck";
 
-export const GET = async (req: Request, context: { params: { id: string } }) => {
-    const { id } = await context.params
+export const GET = async (_: Request, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params
 
     try {
         const decks = await getDecksByUser(id)

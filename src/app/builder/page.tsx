@@ -27,9 +27,15 @@ export default () => {
     const [currentCard, setCurrentCard] = useState<number>(0)
     const [currentImg, setCurrentImg] = useState<string>("/mtg-card-back.webp")
     const [loading, setLoading] = useState(false)
-    const [colors, setColors] = useState<string[]>([])
 
     const addDeckHandler = async () => {
+        const colors: string[] = []
+
+        deckCards.forEach(card => {
+            if (card.card.colors)
+                colors.push(...card.card.colors.filter(color => !colors.includes(color)))
+        })
+
         await axios.post('/api/v1/decks', {
             deck: {
                 name: nameRef.current?.value,
@@ -75,11 +81,6 @@ export default () => {
                 changeQty(1, card.id)
             }
             else {
-                setColors(prev => {
-                    const newColors = card.colors ? card.colors.filter(color => !prev.includes(color)) : []
-
-                    return [...prev, ...newColors]
-                })
                 SetDeckCards(prev => [...prev, { card: card, qty: 1 }])
             }
             searchRef.current?.blur()
@@ -222,20 +223,50 @@ export default () => {
 
                     {
                         deckCards.length > 0 &&
-                        <div className="self-start border-2 border-amber-500 flex flex-col items-start w-[90%] align-top">
-                            {
-                                deckCards.map((card, index) =>
-                                    <div
-                                        onMouseEnter={() => setCurrentImg(card.card.image_uris ? card.card.image_uris.png : "/mtg-card-back.webp")}
-                                        key={index} className="p-3 flex flex-row w-full justify-between"
-                                    >
-                                        <h1>{index}</h1>
-                                        <h1 className="w-[30%]">{card.card.name}</h1>
-                                        <div className="w-[30%]">{card.commander ? <button type="button">COMMANDER</button> : <button onClick={() => setCommander(card.card.id)}>Set as Commander</button>}</div>
-                                        <div className="w-[10%] flex flex-row gap-8"><button type="button" onClick={() => changeQty(-1, card.card.id)}>-</button><p>{card.qty}</p><button type="button" onClick={() => changeQty(1, card.card.id)}>+</button></div>
-                                        <div><button type="button" onClick={() => removeCardHandler(card.card.id)}>x</button></div>
-                                    </div>)
-                            }
+                        <div className="self-start flex flex-col gap-3 items-start w-[90%] align-top">
+                            <div className="self-start border-2 border-amber-500 flex flex-col items-start w-full align-top max-h-95 overflow-auto">
+                                {
+                                    deckCards.map((card, index) =>
+                                        <div
+                                            onMouseEnter={() => setCurrentImg(card.card.image_uris ? card.card.image_uris.png : "/mtg-card-back.webp")}
+                                            key={index} className="p-3 flex flex-row w-full justify-between hover:bg-amber-400 hover:text-black"
+                                        >
+                                            <h1 className="w-[5%]">{index}</h1>
+                                            <h1 className="w-[27%] truncate">{card.card.name}</h1>
+                                            <div className="w-[27%]">{
+                                                card.commander ?
+                                                    <button type="button" onClick={() => setCommander(card.card.id)}>Commander</button> :
+                                                    <button type="button" onClick={() => setCommander(card.card.id)}>Set Commander</button>
+                                            }
+                                            </div>
+                                            <div className="w-[10%] flex flex-row gap-8">
+                                                <button type="button" onClick={() => changeQty(-1, card.card.id)}>-</button><p>{card.qty}</p><button type="button" onClick={() => changeQty(1, card.card.id)}>+</button>
+                                            </div>
+                                            <div><button type="button" onClick={() => removeCardHandler(card.card.id)}>x</button></div>
+                                        </div>)
+                                }
+                            </div>
+                            <div className="flex flex-row border-amber-400 border-2 w-full">
+                                <p className="font-bold p-2 w-[20%]">AVG</p>
+                                <p className="font-bold p-2 w-[60%]">Price</p>
+                                <p className="font-bold text-end p-2 w-[20%]">Total</p>
+                            </div>
+                            <div className="flex flex-row border-amber-400 border-2 w-full">
+                                {
+                                    deckCards &&
+                                    <p className="p-2 w-[20%]">{
+                                        (deckCards.reduce((sum, card) => sum + (card.card.cmc * card.qty), 0) /
+                                            deckCards.reduce((sum, card) => sum + card.qty, 0)).toFixed(2)
+                                    }</p>
+                                }
+                                <p className="p-2 w-[60%]">{deckCards.reduce((sum, card) => sum + (parseInt(card.card.prices.usd ? card.card.prices.usd : "0") + card.qty), 0)} USD</p>
+                                {
+                                    deckCards &&
+                                    <p className="text-end p-2 w-[20%]">{
+                                        deckCards.map(card => card.qty).reduce((sum, card) => sum + card, 0)
+                                    }</p>
+                                }
+                            </div>
                         </div>
                     }
                 </div>

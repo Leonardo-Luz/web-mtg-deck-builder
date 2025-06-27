@@ -30,8 +30,8 @@ export default () => {
             if (!response.data.success) return
 
             const res = await signIn("credentials", {
-                username,
-                password,
+                username: username.current.value,
+                password: password.current.value,
                 redirect: false,
             });
 

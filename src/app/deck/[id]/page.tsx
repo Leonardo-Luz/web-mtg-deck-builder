@@ -53,6 +53,40 @@ export default ({ params }: CardsProps) => {
         setCards(cardsData)
     }
 
+    const shuffle = (cards: CardQty[]) => {
+        for (let i = cards.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [cards[i], cards[j]] = [cards[j], cards[i]];
+        }
+
+        return cards
+    }
+
+    const testDeck = () => {
+        let clone: CardQty[] = [];
+        cards.forEach(val => clone.push(Object.assign({}, val)));
+        clone = shuffle([...clone]);
+        const hand: CardQty[] = [];
+
+
+        for (let i = 0; i < 7 && clone.length > 0; i++) {
+            const card = clone.pop();
+            if (!card)
+                break;
+
+            card.qty--;
+            if (card.qty > 0) {
+                clone.push(card)
+                clone = shuffle([...clone])
+            }
+
+            hand.push(card);
+        }
+
+        const log = hand.map(card => card.card.name)
+        alert(log.join("\n"))
+    };
+
     useEffect(() => {
         getDeck()
     }, [])
@@ -82,10 +116,6 @@ export default ({ params }: CardsProps) => {
                         />
                     })}
                 </div>
-                <div className="w-[50%] self-center flex flex-row justify-between gap-6">
-                    <h1 className="text-start w-[80%] self-end font-extrabold text-1xl text-amber-500 truncate">Price: </h1>
-                    <h1 className="text-end w-[20%] self-end font-extrabold text-1xl text-amber-500 truncate">{price.toFixed(2)} USD</h1>
-                </div>
             </div>
             <hr className="self-center w-[50%] border-2 border-amber-500" />
             <div className="self-center flex flex-row gap-8 align-top">
@@ -114,30 +144,64 @@ export default ({ params }: CardsProps) => {
                         cards.filter(card => card.commander).map((card, index) => <div
                             onMouseOver={() => setCurrent(cards.indexOf(card))}
                             key={card.card.id}
-                            className="flex flex-row border-2 hover:bg-amber-400 hover:text-black hover:font-bold"
+                            className="flex flex-row border-2 hover:bg-amber-400 hover:text-black"
                         >
                             <p onClick={() => { redirect(`/card/${card.card.id}`) }} className="p-2 w-[20%]">{index}</p>
-                            <p onClick={() => { redirect(`/card/${card.card.id}`) }} className="p-2 w-[60%]">{card.card.name}</p>
+                            <p onClick={() => { redirect(`/card/${card.card.id}`) }} className="p-2 w-[60%] truncate">{card.card.name}</p>
                             <p onClick={() => { redirect(`/card/${card.card.id}`) }} className="text-end p-2 w-[20%]">{card.qty}</p>
                         </div>)
                     }
                     {
                         (deck) &&
-                        <div className="border-2 border-amber-500 max-h-100 overflow-auto">
+                        <div className="border-2 border-amber-500 max-h-60 overflow-auto">
                             {
                                 cards.length > 0 &&
                                 cards.filter(card => !card.commander).map((card, index) => <div
                                     onMouseOver={() => setCurrent(cards.indexOf(card))}
                                     key={card.card.id}
-                                    className="flex flex-row hover:bg-amber-400 hover:text-black hover:font-bold"
+                                    className="flex flex-row hover:bg-amber-400 hover:text-black"
                                 >
                                     <p onClick={() => { redirect(`/card/${card.card.id}`) }} className="p-2 w-[20%]">{index}</p>
-                                    <p onClick={() => { redirect(`/card/${card.card.id}`) }} className="p-2 w-[60%]">{card.card.name}</p>
+                                    <p onClick={() => { redirect(`/card/${card.card.id}`) }} className="p-2 w-[60%] truncate">{card.card.name}</p>
                                     <p onClick={() => { redirect(`/card/${card.card.id}`) }} className="text-end p-2 w-[20%]">{card.qty}</p>
                                 </div>)
                             }
                         </div>
                     }
+                    <div className="flex flex-row border-amber-400 border-2">
+                        <p className="font-bold p-2 w-[20%]">AVG</p>
+                        <p className="font-bold p-2 w-[60%]">Price</p>
+                        <p className="font-bold text-end p-2 w-[20%]">Total</p>
+                    </div>
+                    <div className="flex flex-row border-amber-400 border-2">
+                        {
+                            cards &&
+                            <p className="p-2 w-[20%]">{
+                                (cards.reduce((sum, card) => sum + (card.card.cmc * card.qty), 0) /
+                                    cards.reduce((sum, card) => sum + card.qty, 0)).toFixed(2)
+                            }</p>
+                        }
+                        <p className="p-2 w-[60%]">{price.toFixed(2)} USD</p>
+                        {
+                            cards &&
+                            <p className="text-end p-2 w-[20%]">{
+                                cards.map(card => card.qty).reduce((sum, card) => sum + card, 0)
+                            }</p>
+                        }
+                    </div>
+                    <button
+                        type="button"
+                        className="p-2 text-center cursor-pointer border-amber-400 border-2 hover:bg-amber-400 hover:text-black hover:font-bold"
+                        onClick={testDeck}
+                    >
+                        Test Deck
+                    </button>
+                    <button
+                        type="button"
+                        className="p-2 text-center cursor-pointer border-amber-400 border-2 hover:bg-amber-400 hover:text-black hover:font-bold"
+                    >
+                        Export Deck
+                    </button>
                 </div>
             </div>
         </div >

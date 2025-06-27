@@ -17,3 +17,7 @@ export async function updateCard(id: string, card: typeof cardsTable.$inferInser
         })
         .where(eq(cardsTable.id, id))
 }
+
+export async function deleteCard(id: string) {
+    await database.delete(cardsTable).where(eq(cardsTable.id, id))
+}

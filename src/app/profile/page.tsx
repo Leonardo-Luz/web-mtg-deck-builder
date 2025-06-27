@@ -20,6 +20,15 @@ export default () => {
         signOut({ redirect: true, callbackUrl: "/" })
     }
 
+    async function deleteHandler() {
+        if (!confirm("Confirm account deletion"))
+            return;
+
+        await axios.delete(`/api/v1/users/${data!.user.id}`)
+
+        signOut({ redirect: true, callbackUrl: "/" })
+    }
+
     useEffect(() => {
         if (data != null) getDecksHandler();
     }, [data])
@@ -43,6 +52,10 @@ export default () => {
                     className="w-[25%] cursor-pointer self-center rounded-md bg-amber-600 text-black font-extrabold p-3 inset-shadow-sm inset-shadow-[#000000] hover:bg-amber-300"
                     onClick={logoutHandler}
                 >Logout</button>
+                <button
+                    className="w-[25%] cursor-pointer self-center rounded-md bg-amber-600 text-black font-extrabold p-3 inset-shadow-sm inset-shadow-[#000000] hover:bg-amber-300"
+                    onClick={deleteHandler}
+                >Delete Account</button>
                 <Link
                     href="/profile/change-password"
                     className="w-[25%] cursor-pointer self-center rounded-md bg-amber-600 text-black font-extrabold p-3 inset-shadow-sm inset-shadow-[#000000] hover:bg-amber-300"

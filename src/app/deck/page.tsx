@@ -47,7 +47,7 @@ export default () => {
 
 
     return (
-        <div className="w-full mt-30 flex flex-col align-middle gap-10">
+        <div className="w-full mt-30 mb-10 flex flex-col align-middle gap-6">
             <h1 className="self-center font-extrabold text-3xl text-amber-500">Deck List</h1>
             <div className="flex flex-col gap-3 self-center w-[80%] text-amber-400">
                 <div className="self-center flex flex-row gap-4 items-center w-full justify-between">
@@ -69,10 +69,10 @@ export default () => {
                     />
                 </div>
                 <div className="flex flex-row w-full border-amber-400 border-2">
-                    <div className="p-2 w-[10%]">ID</div>
-                    <div className="p-2 w-[60%]">Deck Name</div>
-                    <div className="p-2 w-[20%]">Colors</div>
-                    <div className="p-2 text-end w-[10%]"></div>
+                    <div className="font-bold p-2 w-[10%]">ID</div>
+                    <div className="font-bold p-2 w-[60%]">Deck Name</div>
+                    <div className="font-bold p-2 w-[20%]">Colors</div>
+                    <div className="font-bold p-2 text-end w-[10%]"></div>
                 </div>
                 {
                     (decks) ?
@@ -110,8 +110,21 @@ export default () => {
                         </div>
                 }
             </div>
-            <div className="self-center">
-                <Link href='/builder' className="w-[25%] cursor-pointer self-center rounded-md bg-amber-600 text-black font-extrabold p-3 inset-shadow-sm inset-shadow-[#000000] hover:bg-amber-300">New Deck</Link>
+            <div className="self-center w-[80%] flex flex-row justify-between">
+                <Link
+                    href='/builder'
+                    className="text-amber-400 cursor-pointer p-2 border-amber-400 border-2 hover:bg-amber-400 hover:text-black hover:font-bold"
+                >New Deck</Link>
+                <div className="self-center flex flex-row gap-3">
+                    <input
+                        type="file"
+                        className="text-amber-400 cursor-pointer p-2 border-amber-400 border-2 hover:bg-amber-400 hover:text-black hover:font-bold"
+                    />
+                    <button
+                        type="button"
+                        className="text-amber-400 cursor-pointer p-2 border-amber-400 border-2 hover:bg-amber-400 hover:text-black hover:font-bold"
+                    >Import Deck</button>
+                </div>
             </div>
         </div>
     )

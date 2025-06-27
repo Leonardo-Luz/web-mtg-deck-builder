@@ -2,7 +2,7 @@ import { STATUS_CODES } from "http";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { updateUserPassword } from "../../repositories/user";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/utils/authOptions";
 import { AuthError } from "../../lib/errors";
 
 export const PUT = async (req: NextRequest) => {

@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { deleteDeck, getDeckById, updateDeck } from "../../repositories/deck";
 import { getServerSession } from "next-auth";
 import { STATUS_CODES } from "http";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/utils/authOptions";
 import { Deck } from "@/types/deck";
-import { insertCards, updateCard } from "../../repositories/card";
+import { deleteCard, insertCards, updateCard } from "../../repositories/card";
 
-export const GET = async (req: Request, context: { params: { id: string } }) => {
-    const { id } = await context.params
+export const GET = async (_: Request, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params
 
     try {
         const data = await getDeckById(id)
@@ -23,10 +23,10 @@ export const GET = async (req: Request, context: { params: { id: string } }) => 
 interface DeckNextRequest extends NextRequest {
     json: () => Promise<{ deck: Deck }>
 }
-export const PUT = async (req: DeckNextRequest, context: { params: { id: string } }) => {
+export const PUT = async (req: DeckNextRequest, { params }: { params: Promise<{ id: string }> }) => {
     const data = await getServerSession(authOptions);
     const { deck } = await req.json()
-    const { id } = await context.params
+    const { id } = await params
 
     if (!data)
         return new NextResponse(JSON.stringify({ success: false, message: STATUS_CODES[401] }),
@@ -46,7 +46,11 @@ export const PUT = async (req: DeckNextRequest, context: { params: { id: string 
             }
         })
 
+        const parsedOldCards = compDeck.map(deck => deck.cards)
+
         await Promise.all(parsedCards.filter(tmp => tmp.id).map(card => updateCard(card.id!, card)));
+
+        await Promise.all(parsedOldCards.filter(tmp => tmp != null && !parsedCards.find(card => card.id == tmp.id)).map(card => deleteCard(card!.id)));
 
         if (parsedCards.filter(tmp => !tmp.id).length > 0)
             await insertCards(parsedCards.filter(tmp => !tmp.id))
@@ -61,19 +65,16 @@ export const PUT = async (req: DeckNextRequest, context: { params: { id: string 
     }
 }
 
-export const DELETE = async (_: Request, context: { params: { id: string } }) => {
+export const DELETE = async (_: Request, { params }: { params: Promise<{ id: string }> }) => {
     const data = await getServerSession(authOptions);
 
-    const { id } = await context.params
+    const { id } = await params
 
     if (!data)
         return new NextResponse(JSON.stringify({ success: false, message: STATUS_CODES[401] }),
             { status: 401, headers: { 'Content-Type': 'application/json' } });
 
     const compDeck = await getDeckById(id)
-
-    console.log(compDeck)
-    console.log(data)
 
     if (data.user.id != compDeck[0].decks.userId)
         return new NextResponse(JSON.stringify({ success: false, message: STATUS_CODES[403] }),

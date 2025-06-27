@@ -7,16 +7,18 @@ export const search = async (query: string): Promise<CardList | undefined> => {
 
         return response.data
     } catch (err) {
+        console.log(err)
         return undefined
     }
 }
 
-export const releases = async (limit: number): Promise<CardList | undefined> => {
+export const releases = async (): Promise<CardList | undefined> => {
     try {
         const response = await service.get(`/cards/search?order=released&q=.`);
 
         return response.data
     } catch (err) {
+        console.log(err)
         return undefined
     }
 }

@@ -13,7 +13,7 @@ export default () => {
     const [loading, setLoading] = useState<boolean>(true);
 
     const getLastReleasedCards = async () => {
-        const releasedCards = await releases(50)
+        const releasedCards = await releases()
 
         setCards(releasedCards)
     }
@@ -78,7 +78,7 @@ export default () => {
                                             decks.slice(0, 50).map((deck: any) =>
                                                 <div
                                                     key={deck.decks.id}
-                                                    className="flex flex-col gap-1 w-[300px]"
+                                                    className="flex flex-col gap-1 min-w-[300px]"
                                                 >
                                                     <Image
                                                         className="cursor-pointer"

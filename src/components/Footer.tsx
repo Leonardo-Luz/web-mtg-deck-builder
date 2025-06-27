@@ -7,7 +7,7 @@ export default () => {
         <div className="w-full flex flex-row align-middle justify-between bg-amber-600 p-6 shadow-black shadow-md">
             <Image
                 className="grayscale"
-                src="/globe.svg"
+                src="/logo.png"
                 alt="Icon"
                 width={60}
                 height={60}
